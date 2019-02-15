@@ -1,5 +1,4 @@
 import os
-import shutil
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,26 +10,31 @@ def go_to_ch_dir(chapter_dir_name: str):
     os.chdir(chapter_dir_name)
 
 
-def scrape_worm(start_link: str):
+def scrape_worm(start_link: str, prev_fn=None, ch_no=1):
     if start_link is None:
-        return
+        return None
     with requests.get(start_link) as page:
         soup = BeautifulSoup(page.content, "html.parser")
         ch_title = soup.find("h1", class_="entry-title").get_text()
-        print(ch_title)
+        cur_fn = f"{ch_no}-{ch_title}.html"
+        print(cur_fn)
 
         links = soup.find_all("a")
         next_link = None
-        if links != None:
+        if links:
             for link in links:
                 if link.get_text().strip().lower() == "next chapter":
                     next_link = link.get("href")
+
+        next_fn = None
+        if next_link:
+            next_fn = scrape_worm(next_link, cur_fn, ch_no+1)
 
         ch_content = soup.find("div", class_="entry-content")
         ps = ch_content.find_all("p")
         del ps[0], ps[-1]
 
-        with open(f"{ch_title}.html", "w") as ofp:
+        with open(cur_fn, "w") as ofp:
             ofp.write(
                 f"""
 <!DOCTYPE html>
@@ -43,13 +47,22 @@ def scrape_worm(start_link: str):
     <link rel="stylesheet" type="text/css" media="screen" href="main.css">
 </head>
 <body>
-    {"".join([p.prettify() for p in ps])}
+    <header>
+        <h1>{ch_title}</h1>
+    </header>
+    <main>
+        {"".join([p.prettify() for p in ps])}
+    </main>
+    <footer>
+        {f'<a id="prevChapter" href="{prev_fn}">Previous Chapter</a>' if prev_fn else ""}
+        {f'<a id="nextChapter" href="{next_fn}">Next Chapter</a>' if next_fn else ""}
+    </footer>
 </body>
 </html>
                 """
             )
 
-        scrape_worm(next_link)
+        return cur_fn
 
 
 def main():
