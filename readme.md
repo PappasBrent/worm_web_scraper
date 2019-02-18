@@ -46,4 +46,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * [Worm](https://parahumans.wordpress.com/) - Please consider reading this amazing story!
-* [Wildbow] (https://parahumans.wordpress.com/support/) - As always, please please please support the original author!
+* [Wildbow](https://parahumans.wordpress.com/support/) - As always, please please please support the original author!
