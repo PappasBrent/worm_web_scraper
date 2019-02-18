@@ -10,33 +10,37 @@ def go_to_ch_dir(chapter_dir_name: str):
     os.chdir(chapter_dir_name)
 
 
-def scrape_worm(start_link: str, prev_fn=None, ch_no=1):
-    if start_link is None:
-        return None
-    with requests.get(start_link) as page:
-        soup = BeautifulSoup(page.content, "html.parser")
-        ch_title = soup.find("h1", class_="entry-title").get_text()
-        cur_fn = f"{ch_no}-{ch_title}.html"
-        print(cur_fn)
+def scrape_worm(cur_link: str, prev_fn=None, ch_no=1):
+    prev_fn = None
+    while cur_link is not None:
+        with requests.get(cur_link) as page:
+            soup = BeautifulSoup(page.content, "html.parser")
+            ch_title = soup.find("h1", class_="entry-title").get_text()
+            cur_fn = f"{ch_no}-{ch_title}.html"
+            print(cur_fn)
 
-        links = soup.find_all("a")
-        next_link = None
-        if links:
-            for link in links:
-                if link.get_text().strip().lower() == "next chapter":
-                    next_link = link.get("href")
+            links = soup.find_all("a")
+            next_link = None
+            if links:
+                for link in links:
+                    if link.get_text().strip().lower() == "next chapter":
+                        next_link = link.get("href")
 
-        next_fn = None
-        if next_link:
-            next_fn = scrape_worm(next_link, cur_fn, ch_no+1)
+            next_fn = None
+            if next_link:
+                with requests.get(next_link) as next_page:
+                    next_soup = BeautifulSoup(next_page.content, 'html.parser')
+                    next_title = next_soup.find(
+                        "h1", class_="entry-title").get_text()
+                    next_fn = f"{ch_no+1}-{next_title}.html" if next_title else None
 
-        ch_content = soup.find("div", class_="entry-content")
-        ps = ch_content.find_all("p")
-        del ps[0], ps[-1]
+            ch_content = soup.find("div", class_="entry-content")
+            ps = ch_content.find_all("p")
+            del ps[0], ps[-1]
 
-        with open(cur_fn, "w") as ofp:
-            ofp.write(
-                f"""
+            with open(cur_fn, "w") as ofp:
+                ofp.write(
+                    f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,7 +48,7 @@ def scrape_worm(start_link: str, prev_fn=None, ch_no=1):
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>{ch_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="../main.css">
 </head>
 <body>
     <header>
@@ -60,9 +64,10 @@ def scrape_worm(start_link: str, prev_fn=None, ch_no=1):
 </body>
 </html>
                 """
-            )
-
-        return cur_fn
+                )
+            prev_fn = cur_fn
+            cur_link = next_link
+            ch_no += 1
 
 
 def main():
