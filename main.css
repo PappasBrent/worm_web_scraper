@@ -1,0 +1,68 @@
+body {
+    color: antiquewhite;
+    background-color: black;
+    font-size: 24px;
+    line-height: 1.5;
+}
+
+body * {
+    margin: 0 auto;
+}
+
+header {
+    width: 75%;
+}
+
+main {
+    width: 75%;
+}
+
+p {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+footer {
+    display: flex;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+a:link {
+    color: green;
+}
+
+a:hover {
+    color: orange;
+}
+
+a:visited {
+    color: red;
+}
+
+
+/* Scrollbar Stuff */
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+    border-radius: 5%;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: antiquewhite;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: orange;
+}
